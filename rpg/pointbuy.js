@@ -1,4 +1,4 @@
-class pointbuy {
+class PointBuyOption {
 	constructor(value, cost) {
 		this.value = value;
 		this.cost = cost;
@@ -9,14 +9,14 @@ class pointbuy {
 	}
 }
 
-class attibuteHolder {
+class AttibuteHolder {
 	constructor(name, value) {
 		this.name = name;
 		this.value = value;
 	}
 }
 
-class pointbuyholder {
+class PointBuySystem {
 	constructor(name, attributesList, pointBuyList, maxPoints, defaultValue) {
 		this.name = name;
 		this.maxPoints = maxPoints;
@@ -28,13 +28,17 @@ class pointbuyholder {
 
 		for (var i = 0; i < attributesList.length;i++)
 		{
-			this.attibuteHolders[i] =new attibuteHolder(attributesList[i], this.defaultValue);
+			this.attibuteHolders[i] =new AttibuteHolder(attributesList[i], this.defaultValue);
 		}
 		
-		this.updateLeftOverPoints(); // this.maxPoints - this.getSpentPoints();
+		this.UpdateLeftOverPoints();
 	}
 
-	allowedSelection(attribute) {
+	toString() {
+		return this.name;
+	}
+
+	GetAllowedSelection(attribute) {
 		var selectedAttributeValue = this.attibuteHolders.find(x => x.name == attribute);
 		var selectedCost = this.pointBuyList.find((x) => x.value == selectedAttributeValue.value).cost;
 		var leftOver = this.leftOverPoints + selectedCost;
@@ -42,13 +46,13 @@ class pointbuyholder {
 		return returnValue;
 	}
 
-	updateValue(attribute, newValue) {
+	UpdateValue(attribute, newValue) {
 		var selectedAttributeValue = this.attibuteHolders.find(x => x.name == attribute);
 		selectedAttributeValue.value = this.pointBuyList.find(x => x.toString() == newValue).value;
-		this.updateLeftOverPoints();
+		this.UpdateLeftOverPoints();
 	}
 
-	getSpentPoints() {
+	GetSpentPoints() {
 		var spentPoints = 0;
 
 		for (var i = 0; i < this.attibuteHolders.length; i++) {
@@ -60,24 +64,29 @@ class pointbuyholder {
 		return spentPoints;
 	}
 
-	updateMaxPoints(newMaxPoints) {
+	UpdateMaxPoints(newMaxPoints) {
 		this.maxPoints = newMaxPoints;
-		this.resetValues();
-		this.updateLeftOverPoints();
+		this.UpdateLeftOverPoints();
+
+		if (this.leftOverPoints < 0) {
+			this.ResetValues();
+		}
 	}
 
-	updateLeftOverPoints() {
-		this.leftOverPoints = this.maxPoints - this.getSpentPoints();
+	UpdateLeftOverPoints() {
+		this.leftOverPoints = this.maxPoints - this.GetSpentPoints();
 	}
 
-	resetValues() {
+	ResetValues() {
 		for (var i = 0; i < this.attibuteHolders.length; i++) {
 			this.attibuteHolders[i].value = this.defaultValue;
 		}
+
+		this.UpdateLeftOverPoints();
 	}
 }
 
-var dndAttributes = [
+var predefinedDndAttributes = [
 	"Str",
 	"Dex",
 	"Con",
@@ -85,39 +94,45 @@ var dndAttributes = [
 	"Int",
 	"Cha"];
 
-var dndPointBuyList = [
-	new pointbuy(8, 0),
-	new pointbuy(9, 1),
-	new pointbuy(10, 2),
-	new pointbuy(11, 3),
-	new pointbuy(12, 4),
-	new pointbuy(13, 5),
-	new pointbuy(14, 7),
-	new pointbuy(15, 9)];
+var predefinedDndPointBuyList = [
+	new PointBuyOption(8, 0),
+	new PointBuyOption(9, 1),
+	new PointBuyOption(10, 2),
+	new PointBuyOption(11, 3),
+	new PointBuyOption(12, 4),
+	new PointBuyOption(13, 5),
+	new PointBuyOption(14, 7),
+	new PointBuyOption(15, 9)];
 
 var homeBrewPointBuyList = [
-	new pointbuy(3, -3),
-	new pointbuy(4, -2),
-	new pointbuy(5, -2),
-	new pointbuy(6, -1),
-	new pointbuy(7, -1),
-	new pointbuy(8, 0),
-	new pointbuy(9, 1),
-	new pointbuy(10, 2),
-	new pointbuy(11, 3),
-	new pointbuy(12, 4),
-	new pointbuy(13, 5),
-	new pointbuy(14, 7),
-	new pointbuy(15, 9),
-	new pointbuy(16, 13),
-	new pointbuy(17, 15),
-	new pointbuy(18, 19)];
+	new PointBuyOption(3, -3),
+	new PointBuyOption(4, -2),
+	new PointBuyOption(5, -2),
+	new PointBuyOption(6, -1),
+	new PointBuyOption(7, -1),
+	new PointBuyOption(8, 0),
+	new PointBuyOption(9, 1),
+	new PointBuyOption(10, 2),
+	new PointBuyOption(11, 3),
+	new PointBuyOption(12, 4),
+	new PointBuyOption(13, 5),
+	new PointBuyOption(14, 7),
+	new PointBuyOption(15, 9),
+	new PointBuyOption(16, 13),
+	new PointBuyOption(17, 15),
+	new PointBuyOption(18, 19)];
 
-pointBuyHolder = new pointbuyholder("dnd5e pointbuy", dndAttributes, homeBrewPointBuyList, 30, 8);
-var pointHolders = [pointBuyHolder];
+var pointHolders = [
+	new PointBuySystem("dnd5e pointbuy", predefinedDndAttributes, predefinedDndPointBuyList, 27, 8),
+	new PointBuySystem("homebrew pointbuy", predefinedDndAttributes, homeBrewPointBuyList, 30, 8)];
+
+pointBuyHolder = pointHolders[0];
 
 function initTable() {
-	var table = document.getElementById("attributes")
+
+	setupSystemSelector();
+
+	var table = document.getElementById("attributes");
 	for (var i = 0; i < pointBuyHolder.attibuteHolders.length; i++) {
 		var holder = pointBuyHolder.attibuteHolders[i];
 		var row = table.insertRow(i + 1);
@@ -135,14 +150,32 @@ function initTable() {
 		abilityScore.appendChild(selectElement);
 	}
 
-	refreshAllOptionsValues();
+	refreshAvailiableOptions();
+	resetOptions();
+}
+
+function setupSystemSelector() {
+	
+	var systemSelector = document.getElementById("systemSelector");
+	systemSelector.addEventListener(
+		'change',
+		function () { updateSystemSelection(this.id); },
+		false);
+
+	refreshSystemOptionsValues();
+}
+
+function updateSystemSelection(nam) {
+	var selectedElement = document.getElementById(nam);
+	pointBuyHolder = pointHolders.find(x => x.toString() == selectedElement.value);
+	clearAvailiableOptions();
 	resetOptions();
 }
 
 function updateSelection(nam) {
 	var selectedElement = document.getElementById(nam);
-	pointBuyHolder.updateValue(nam, selectedElement.value);
-	refreshAllOptionsValues();
+	pointBuyHolder.UpdateValue(nam, selectedElement.value);
+	refreshAvailiableOptions();
 }
 
 function updateOptions(selectElement, pointBuyList) {
@@ -167,25 +200,83 @@ function updateOptions(selectElement, pointBuyList) {
 	}
 }
 
-function maxPointChanged() {
-	var maxPointsElement = document.getElementById("maxPoint")
-	pointBuyHolder.updateMaxPoints(maxPointsElement.value);
-	refreshAllOptionsValues();
+function cleanAndUpdateOptions(selectElement, pointBuyList) {
+	optionsAmount = selectElement.options.length;
+
+	for (let i = selectElement.options.length -1; i >= 0; i--) {
+		selectElement.options.remove(i);
+	}
+
+	for (let i = 0; i < pointBuyList.length; i++) {
+		var optionValue = pointBuyList[i];
+		var optionToAdd = document.createElement("option");
+		optionToAdd.text = optionValue;
+		selectElement.add(optionToAdd);
+	}
+}
+
+function clearAssignedAttributes() {
+	pointBuyHolder.ResetValues();
+	refreshAvailiableOptions();
 	resetOptions();
 }
 
-function refreshAllOptionsValues() {
+function maxPointChanged() {
+	var maxPointsElement = document.getElementById("maxPoint")
+	pointBuyHolder.UpdateMaxPoints(maxPointsElement.value);
+	refreshAvailiableOptions();
+	resetOptions();
+}
+
+function refreshAvailiableOptions() {
 	for (var i = 0; i < pointBuyHolder.attibuteHolders.length; i++) {
 		var attibuteHolder = pointBuyHolder.attibuteHolders[i];
 		var id = attibuteHolder.name;
 		var selectElement = document.getElementById(id);
-		updateOptions(selectElement, pointBuyHolder.allowedSelection(id));
+		updateOptions(selectElement, pointBuyHolder.GetAllowedSelection(id));
 	}
 
 	var maxPointsElement = document.getElementById("maxPoint")
 	maxPointsElement.value = pointBuyHolder.maxPoints;
 	var leftoverPointsScoreElement = document.getElementById("leftOver")
 	leftoverPointsScoreElement.innerHTML = pointBuyHolder.leftOverPoints;
+}
+
+function clearAvailiableOptions() {
+	for (var i = 0; i < pointBuyHolder.attibuteHolders.length; i++) {
+		var attibuteHolder = pointBuyHolder.attibuteHolders[i];
+		var id = attibuteHolder.name;
+		var selectElement = document.getElementById(id);
+		cleanAndUpdateOptions(selectElement, pointBuyHolder.GetAllowedSelection(id));
+	}
+
+	var maxPointsElement = document.getElementById("maxPoint")
+	maxPointsElement.value = pointBuyHolder.maxPoints;
+	var leftoverPointsScoreElement = document.getElementById("leftOver")
+	leftoverPointsScoreElement.innerHTML = pointBuyHolder.leftOverPoints;
+}
+
+function refreshSystemOptionsValues() {
+	selectElement = document.getElementById("systemSelector");
+	optionsAmount = selectElement.options.length;
+	var skipIndex = 0;
+	if (selectElement.options.length > 0) {
+		skipIndex = selectElement.options.length;
+	}
+
+	if (skipIndex < pointHolders.length) {
+		for (let i = skipIndex; i < pointHolders.length; i++) {
+			var optionValue = pointHolders[i];
+			var optionToAdd = document.createElement("option");
+			optionToAdd.text = optionValue;
+			selectElement.add(optionToAdd);
+		}
+	}
+	else {
+		for (let i = skipIndex; i >= pointHolders.length; i--) {
+			selectElement.options.remove(i);
+		}
+	}
 }
 
 function resetOptions() {
