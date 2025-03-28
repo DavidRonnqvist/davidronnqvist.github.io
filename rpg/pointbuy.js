@@ -17,33 +17,20 @@ class attibuteHolder {
 }
 
 class pointbuyholder {
-	constructor(name) {
+	constructor(name, attributesList, pointBuyList, maxPoints, defaultValue) {
 		this.name = name;
-		this.maxPoints = 27;
-		this.defaultValue = 8;
+		this.maxPoints = maxPoints;
+		this.defaultValue = defaultValue;
 
-		this.pointBuyList =
-			[
-				new pointbuy(8, 0),
-				new pointbuy(9, 1),
-				new pointbuy(10, 2),
-				new pointbuy(11, 3),
-				new pointbuy(12, 4),
-				new pointbuy(13, 5),
-				new pointbuy(14, 7),
-				new pointbuy(15, 9),
-			];
+		this.pointBuyList = pointBuyList;
 
-		this.attibuteHolders =
-			[
-			new attibuteHolder("Str", this.defaultValue),
-			new attibuteHolder("Dex", this.defaultValue),
-			new attibuteHolder("Con", this.defaultValue),
-			new attibuteHolder("Wis", this.defaultValue),
-			new attibuteHolder("Int", this.defaultValue),
-			new attibuteHolder("Cha", this.defaultValue),
-			];
+		this.attibuteHolders = [];
 
+		for (var i = 0; i < attributesList.length;i++)
+		{
+			this.attibuteHolders[i] =new attibuteHolder(attributesList[i], this.defaultValue);
+		}
+		
 		this.updateLeftOverPoints(); // this.maxPoints - this.getSpentPoints();
 	}
 
@@ -90,8 +77,44 @@ class pointbuyholder {
 	}
 }
 
-pointBuyHolder = new pointbuyholder("dnd5e pointbuy");
-var pointHolders =[pointBuyHolder]
+var dndAttributes = [
+	"Str",
+	"Dex",
+	"Con",
+	"Wis",
+	"Int",
+	"Cha"];
+
+var dndPointBuyList = [
+	new pointbuy(8, 0),
+	new pointbuy(9, 1),
+	new pointbuy(10, 2),
+	new pointbuy(11, 3),
+	new pointbuy(12, 4),
+	new pointbuy(13, 5),
+	new pointbuy(14, 7),
+	new pointbuy(15, 9)];
+
+var homeBrewPointBuyList = [
+	new pointbuy(3, -3),
+	new pointbuy(4, -2),
+	new pointbuy(5, -2),
+	new pointbuy(6, -1),
+	new pointbuy(7, -1),
+	new pointbuy(8, 0),
+	new pointbuy(9, 1),
+	new pointbuy(10, 2),
+	new pointbuy(11, 3),
+	new pointbuy(12, 4),
+	new pointbuy(13, 5),
+	new pointbuy(14, 7),
+	new pointbuy(15, 9),
+	new pointbuy(16, 13),
+	new pointbuy(17, 15),
+	new pointbuy(18, 19)];
+
+pointBuyHolder = new pointbuyholder("dnd5e pointbuy", dndAttributes, homeBrewPointBuyList, 30, 8);
+var pointHolders = [pointBuyHolder];
 
 function initTable() {
 	var table = document.getElementById("attributes")
@@ -113,6 +136,7 @@ function initTable() {
 	}
 
 	refreshAllOptionsValues();
+	resetOptions();
 }
 
 function updateSelection(nam) {
